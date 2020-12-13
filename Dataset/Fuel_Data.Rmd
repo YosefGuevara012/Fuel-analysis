@@ -25,6 +25,8 @@ plot(x,y,xaxt="n", type= "l",col="green")
 axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 ```
 
+
+
 Calculation of the fuel consumption 
 
 ```{r}
@@ -34,6 +36,13 @@ cat("Fuel consumed: ",consumed, "GAL(US)")
 
 ```
 
+Calculation of the fuel consumption Decembaer 07
+```{r}
+
+consumed <- y[689] -y[1]
+cat("Fuel consumed: ",consumed, "GAL(US), December 07")
+
+```
 #### Fuel Level sensor
 
 
@@ -67,6 +76,7 @@ Searching for skewness and abnormal data
 ```{r}
 boxplot(y)
 hist(y)
+quantile(y)
 ```
 
 **Moving average(mean) filter (MMF) fuction**
@@ -80,20 +90,21 @@ hist(y)
 ### td, date and time of the sensor
 ### sensor, sensor data
 
-MMF <- function (td,sensor){
+MMF <- function (td,sensor, w = 5){
   
   
   meanFilter <- c()
   
-  for (i in 3:length(sensor)) {
+  for (i in w:length(sensor)) {
   
-  ini <- i+2
-  end <- i-2
+  ini <- i+(w-1)/2
+  end <- i-(w-1)/2
   meanFilter[i] <- mean(sensor[ini:end])
   
 }
 
 plot(td,meanFilter,xaxt="n", type= "l",col="green")
+#lines ( td, sensor)
 axis.POSIXct(1,at=td,labels=format(td,"%d-%H:%M"),las=2)
 
 return(meanFilter)  
@@ -138,7 +149,7 @@ axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 
 ```
 
-Aplaying median filter to the data.
+Using median filter to the data.
 
 ```{r}
 MMF_y_fixed <- MMF(x,y_fixed)
@@ -151,5 +162,28 @@ max(a)-min(a)
 ```
 
 
+filtering over the original data
 
+```{r}
+library(signal)
+
+y_golay <- sgolayfilt(y,p = 1, n= 25)
+plot(x,y_golay,xaxt="n", type= "l",col="green")
+#lines ( x, y_fixed)
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+
+```
+
+filtering over the fixed data
+
+```{r}
+
+y_f_golay <- sgolayfilt(y_fixed,p = 1, n= 25)
+plot(x,y_f_golay,xaxt="n", type= "l",col="green")
+#lines ( x, y_fixed)
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+
+a <-max(y_f_golay) - min(y_f_golay)
+a
+```
 
