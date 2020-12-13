@@ -1,0 +1,122 @@
+---
+title: "Fuel Data analysis"
+output: html_notebook
+---
+
+#### Fuel consumption sensor
+```{r}
+fuelUsed <- read.csv("FuelUsed.csv", header=T, sep=";")
+head(fuelUsed)
+```
+```{r}
+#x <- seq(1,nrow(fuelUsed), by = 1)
+
+x <- fuelUsed$Fecha.de.Recepción
+x <- strptime(x, "%d/%m/%Y %H:%M")
+head(x)
+y <- fuelUsed$Valor
+
+```
+
+```{r}
+plot(x,y,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+```
+
+
+```{r}
+
+consumed <- max(y) - min(y)
+cat("Fuel consumed: ",consumed, "GAL(US)")
+
+```
+
+#### Fuel Level sensor
+
+
+```{r}
+Level <- read.csv("Level.csv", header=T, sep=";")
+head(Level)
+```
+
+
+
+
+```{r}
+
+x <- strptime(Level$Fecha.de.Recepción, "%d/%m/%Y %H:%M");
+x <- x[1:367]
+y <- Level$Valor[1:367]
+
+```
+
+
+```{r}
+plot(x,y,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+```
+
+```{r}
+boxplot(y)
+hist(y)
+```
+
+```{r}
+y_fixed <- c()
+
+for (i in 1:length(y)) {
+  
+  if (y[i] > 40){
+    
+    y_fixed[i] <- mean(y)
+    
+  }else{
+    
+    y_fixed[i] <- y[i]
+    
+  }
+  
+}
+
+plot(x,y_fixed,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+
+```
+
+```{r}
+mean_y_fixed_Filter <- c()
+
+for (i in 3:length(y_fixed)) {
+  
+  ini <- i+2
+  end <- i-2
+  mean_y_fixed_Filter[i] <- mean(y_fixed[ini:end])
+  
+}
+
+plot(x,mean_y_fixed_Filter,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+
+boxplot(mean_y_fixed_Filter)
+hist(mean_y_fixed_Filter)
+a <- mean_y_fixed_Filter[3:365]
+max(a)-min(a)
+```
+
+
+```{r}
+
+meanFilter <- c()
+
+for (i in 3:length(y)) {
+  
+  ini <- i+2
+  end <- i-2
+  meanFilter[i] <- mean(y[ini:end])
+  
+}
+
+plot(x,meanFilter,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
+```
+
