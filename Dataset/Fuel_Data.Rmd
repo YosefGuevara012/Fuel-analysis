@@ -8,9 +8,9 @@ output: html_notebook
 fuelUsed <- read.csv("FuelUsed.csv", header=T, sep=";")
 head(fuelUsed)
 ```
-```{r}
-#x <- seq(1,nrow(fuelUsed), by = 1)
+Fuel comsuption data procesing
 
+```{r}
 x <- fuelUsed$Fecha.de.Recepción
 x <- strptime(x, "%d/%m/%Y %H:%M")
 head(x)
@@ -18,11 +18,14 @@ y <- fuelUsed$Valor
 
 ```
 
+Ploting fuel comsuption sensor
+
 ```{r}
 plot(x,y,xaxt="n", type= "l",col="green")
 axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 ```
 
+Calculation of the fuel consumption 
 
 ```{r}
 
@@ -39,8 +42,10 @@ Level <- read.csv("Level.csv", header=T, sep=";")
 head(Level)
 ```
 
+#### Fuel level Data analysis
 
 
+Procesing data from just 1 day (December 07)
 
 ```{r}
 
@@ -50,16 +55,66 @@ y <- Level$Valor[1:367]
 
 ```
 
+Ploting Fuel sensor Data (December 07)
 
 ```{r}
 plot(x,y,xaxt="n", type= "l",col="green")
 axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 ```
 
+Searching for skewness and abnormal data
+
 ```{r}
 boxplot(y)
 hist(y)
 ```
+
+**Moving average(mean) filter (MMF) fuction**
+
+```{r}
+
+### This fuction creates a Moving average(mean) filter (MMF)
+### Only use the 4 close neighbors
+### average is taked from 5 values
+
+### td, date and time of the sensor
+### sensor, sensor data
+
+MMF <- function (td,sensor){
+  
+  
+  meanFilter <- c()
+  
+  for (i in 3:length(sensor)) {
+  
+  ini <- i+2
+  end <- i-2
+  meanFilter[i] <- mean(sensor[ini:end])
+  
+}
+
+plot(td,meanFilter,xaxt="n", type= "l",col="green")
+axis.POSIXct(1,at=td,labels=format(td,"%d-%H:%M"),las=2)
+
+return(meanFilter)  
+  
+}
+```
+
+
+Using mean filter on the Fuel sensor data from (December 07)
+
+```{r}
+
+x <- x[1:367]
+y <- Level$Valor[1:367]
+
+MMF_y <- MMF(x,y)
+head(MMF_y)
+```
+
+
+** Deleting abnormal data remplacing with the mean**
 
 ```{r}
 y_fixed <- c()
@@ -83,40 +138,18 @@ axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 
 ```
 
+Aplaying median filter to the data.
+
 ```{r}
-mean_y_fixed_Filter <- c()
+MMF_y_fixed <- MMF(x,y_fixed)
+head(MMF_y_fixed )
 
-for (i in 3:length(y_fixed)) {
-  
-  ini <- i+2
-  end <- i-2
-  mean_y_fixed_Filter[i] <- mean(y_fixed[ini:end])
-  
-}
-
-plot(x,mean_y_fixed_Filter,xaxt="n", type= "l",col="green")
-axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
-
-boxplot(mean_y_fixed_Filter)
-hist(mean_y_fixed_Filter)
-a <- mean_y_fixed_Filter[3:365]
+boxplot(MMF_y_fixed )
+hist(MMF_y_fixed )
+a <- MMF_y_fixed [3:365]
 max(a)-min(a)
 ```
 
 
-```{r}
 
-meanFilter <- c()
-
-for (i in 3:length(y)) {
-  
-  ini <- i+2
-  end <- i-2
-  meanFilter[i] <- mean(y[ini:end])
-  
-}
-
-plot(x,meanFilter,xaxt="n", type= "l",col="green")
-axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
-```
 
