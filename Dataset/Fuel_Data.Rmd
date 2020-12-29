@@ -224,3 +224,42 @@ plot(x,y,xaxt="n", type= "l",col="green")
 axis.POSIXct(1,at=x,labels=label,las=2)
 ```
 
+
+
+```{r}
+timeDiference <- c()
+for (i in 1:length(x)){
+  
+  timeDiference[i] <- (difftime(x[i],x[i+1], units ="secs"))*-1/3600
+  
+}
+timeDiference[length(x)] <- 0;
+```
+
+
+```{r}
+
+calculo<- (timeDiference*y)
+sum(calculo)
+```
+
+```{r}
+calculo<- (mean(timeDiference[1:366])*y[1:366])
+sum(calculo)
+```
+```{r}
+
+
+rate2 <- cbind(Rate[1:367,], timeDiference * 3600)
+head(rate2)
+
+```
+
+```{r}
+library(dbplyr)
+
+rate2Cleaned <- rate2 %>% filter(rate2,timeDiference > 360)
+
+head(rate2Cleaned)
+```
+
