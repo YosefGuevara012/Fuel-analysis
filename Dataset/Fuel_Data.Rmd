@@ -221,7 +221,7 @@ y <- Rate$Valor[1:367]
 ```{r}
 
 plot(x,y,xaxt="n", type= "l",col="green")
-axis.POSIXct(1,at=x,labels=label,las=2)
+axis.POSIXct(1,at=x,labels=format(x,"%d-%H:%M"),las=2)
 ```
 
 
@@ -249,17 +249,25 @@ sum(calculo)
 ```
 ```{r}
 
-
-rate2 <- cbind(Rate[1:367,], timeDiference * 3600)
+timeDiferenceSeconds <- timeDiference * 3600
+rate2 <- cbind(Rate[1:367,],timeDiferenceSeconds)
 head(rate2)
 
 ```
 
 ```{r}
-library(dbplyr)
+library(dplyr)
 
-rate2Cleaned <- rate2 %>% filter(rate2,timeDiference > 360)
+rate2Cleaned <- filter(rate2,((timeDiferenceSeconds < 70) & (Valor > 0)))
 
 head(rate2Cleaned)
+
+```
+
+```{r}
+
+
+calculo<- (rate2Cleaned$timeDiferenceSeconds/3600*rate2Cleaned$Valor)
+sum(calculo)
 ```
 
